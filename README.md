@@ -1,8 +1,6 @@
 ## Snipping Tool in Python
-A program which works like the snipping tool in Windows.
+Python snipping tool. Preselect a save-to folder and a given prefix. For each new snipped image, the app updates to the given image, in addition to seemlessly permits saving to the given image to the folder without a prompting a folder dialog. 
 
-### Regular Snipping Tool (SnippingTool.py)
-Link to the video
+This simplifies MarkDown workflow, where images need to be saved.
 
-### Multi window Snipping Tool with paint options (SnippingMenu.py + SnippingTool.py)
 ![main_gif](./doc/main.gif)
