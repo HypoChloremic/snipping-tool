@@ -1,11 +1,24 @@
 import sys, random, re, string
+from functools import wraps
 from os.path import basename
 from PyQt5.QtCore import QPoint, Qt, QRect
-from PyQt5.QtWidgets import QAction, QMainWindow, QApplication, QPushButton, QMenu, QFileDialog
+from PyQt5.QtWidgets import QAction, QMainWindow, QApplication, QPushButton, QMenu, QFileDialog, QInputDialog, QLineEdit
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen
-
+# from PyQt5.QtWidgets import QFileDialog 
 import SnippingTool
 
+
+def stdout_log(func):
+    '''stdout_log() will print statements
+    upon entering and exiting a function, outputting the names of the 
+    functions that are being called'''
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        print(f'[{func.__name__}] Entering')
+        result = func(*args, **kwargs)
+        print(f'[{func.__name__}] Exiting')
+        return result
+    return wrapper
 
 class Menu(QMainWindow):
     COLORS = ['Red', 'Black', 'Blue', 'Green', 'Yellow']
@@ -22,8 +35,9 @@ class Menu(QMainWindow):
         self.lastPoint = QPoint()
         self.total_snips = 0
         self.title = Menu.default_title
+
         # Get the main folder
-        self.save_det = self.get_main_folder()
+        self.get_main_folder()
 
         # New snip
         new_snip_action = QAction('New', self) # TODO: check this
@@ -69,6 +83,7 @@ class Menu(QMainWindow):
         # Calling the imported SnippingTool class
         self.snippingTool = SnippingTool.SnippingWidget()
         self.setGeometry(*start_position)
+        self.prefix_input()
 
         # From the second initialization, both arguments will be valid
         if numpy_image is not None and snip_number is not None:
@@ -87,10 +102,17 @@ class Menu(QMainWindow):
         def change_brush_size(new_size):
             self.brushSize = int(''.join(filter(lambda x: x.isdigit(), new_size)))
 
+    def prefix_input(self):
+        text, okPressed = QInputDialog.getText(self, "Get Prefix", "Prefix:", QLineEdit.Normal, "")
+        if okPressed and text != '':
+            print(text)
+            self.prefix = text
+
+    # @stdout_log
     def get_main_folder(self) -> dict:
-        main_folder = str(input('[APPLICATION]: FOLDER TO SAVE TO: '))
-        file_prefix = str(input('[APPLICATION]: FILE PREFIX: '))
-        return {'main_folder': main_folder, 'file_prefix': file_prefix}
+        # main_folder = str(input('[APPLICATION]: FOLDER TO SAVE TO: '))
+        self.main_folder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        print('main folder: ', self.main_folder)
 
     # snippingTool.start() will open a new window, so if this is the first snip, 
     # close the first window.
@@ -100,13 +122,15 @@ class Menu(QMainWindow):
         self.total_snips += 1
         self.snippingTool.start()
 
+    # @stdout_log
     def save_file(self): # an important callback
         # file_path, name = QFileDialog.getSaveFileName(self, "Save file", self.title, "PNG Image file (*.png)")
-        if self.save_det['main_folder']:
+        if self.main_folder:
             rn_str = ''.join(random.choice(string.ascii_letters + string.digits) for letter in range(10))
-            self.save_path = f'{self.save_det['main_folder']}/{self.save_det['file_prefix']}_{rn_string}.png'
-            self.image.save(f'') # self.image stores the image we have snipped
-            self.change_and_set_title(basename(file_path))
+            self.save_path = f'{self.main_folder}/{self.prefix}_{rn_str}.png'
+            self.image.save(self.save_path) # self.image stores the image we have snipped
+            self.change_and_set_title(basename(self.save_path))
+            print(self.save_path)
             print(self.title, 'Saved')
 
     def change_and_set_title(self, new_title):
