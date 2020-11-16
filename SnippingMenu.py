@@ -26,7 +26,13 @@ class Menu(QMainWindow):
     default_title = "Snipping Tool"
 
     # numpy_image is the desired image we want to display given as a numpy array.
-    def __init__(self, numpy_image=None, snip_number=None, start_position=(300, 300, 350, 250)):
+    def __init__(
+            self, 
+            # this is passed to the class from the SnippingTool class
+            numpy_image=None, 
+            snip_number=None, 
+            start_position=(300, 300, 350, 250) # also modded by snippingtool
+            ):
         super().__init__()
 
         self.drawing = False
@@ -81,9 +87,9 @@ class Menu(QMainWindow):
         self.toolbar.addAction(exit_window)
 
         # Calling the imported SnippingTool class
-        self.snippingTool = SnippingTool.SnippingWidget()
+        self.snippingTool = SnippingTool.SnippingWidget(mainclass=self) # this is the new addition
         self.setGeometry(*start_position)
-        self.prefix_input()
+        self.prefix_input() # personally added
 
         # From the second initialization, both arguments will be valid
         if numpy_image is not None and snip_number is not None:
@@ -162,6 +168,12 @@ class Menu(QMainWindow):
     # TODO exit application when we exit all windows
     def closeEvent(self, event):
         event.accept()
+    
+    def update_img(self, img):
+        print('update_img, running in snippingmenu class')
+        self.image = self.convert_numpy_img_to_qpixmap(img)
+        self.resize(self.image.width(), self.image.height() + self.toolbar.height())
+        self.show()
 
     @staticmethod
     def convert_numpy_img_to_qpixmap(np_img):
@@ -169,11 +181,11 @@ class Menu(QMainWindow):
         bytesPerLine = 3 * width
         return QPixmap(QImage(np_img.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped())
 
+
 if __name__ == '__main__':
     # Contains the command-line arguments passed to the script
     # passing the sys.arguments or the command line arguments to
     # the QApplication
     app = QApplication(sys.argv)
-    # 
     mainMenu = Menu()
     sys.exit(app.exec_())

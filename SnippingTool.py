@@ -12,9 +12,10 @@ class SnippingWidget(QtWidgets.QWidget):
     is_snipping = False
     background = True # unclear what this is
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, mainclass=None):
         super(SnippingWidget, self).__init__()
         self.parent = parent
+        self.mainclass = mainclass
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
         root = tk.Tk()
@@ -38,6 +39,8 @@ class SnippingWidget(QtWidgets.QWidget):
         # Seems that this method is required to 
         # use cursor input. 
         # This will seemingly override the main windows cursor.
+        # UPDATE: I think this is more important than we first considered
+        # that this allows the app to pick up cursor information
         QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CrossCursor))
         print('Capture the screen...')
         print('Press q if you want to quit...')
@@ -91,9 +94,12 @@ class SnippingWidget(QtWidgets.QWidget):
 
         self.repaint()
         QtWidgets.QApplication.processEvents()
+        # ImageGrab is seemingly the important part of the application!
         img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
         QtWidgets.QApplication.processEvents()
         img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
 
         # add to the snips list the object that opens a window of the image
-        SnippingMenu.Menu(img, SnippingWidget.num_snip, (x1, y1, x2, y2))
+        print('inside snippingtool, running mainclass update_img')
+        self.mainclass.update_img(img)
+        # SnippingMenu.Menu(img, SnippingWidget.num_snip, (x1, y1, x2, y2))
