@@ -10,7 +10,7 @@ from PyQt5.QtCore import Qt
 class SnippingWidget(QtWidgets.QWidget):
     num_snip = 0
     is_snipping = False
-    background = True
+    background = True # unclear what this is
 
     def __init__(self, parent=None):
         super(SnippingWidget, self).__init__()
@@ -26,12 +26,23 @@ class SnippingWidget(QtWidgets.QWidget):
 
     def start(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        SnippingWidget.background = False
+        # for some reason, when this is turned false when 
+        # the start method is called. 
+        SnippingWidget.background = False 
         SnippingWidget.is_snipping = True
+        # this sets the window opacity to 0.3
+        # note that the setWindowOpacity method is inherited 
+        # QTwidgets.QWidget
         self.setWindowOpacity(0.3)
+
+        # Seems that this method is required to 
+        # use cursor input. 
+        # This will seemingly override the main windows cursor.
         QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CrossCursor))
         print('Capture the screen...')
         print('Press q if you want to quit...')
+        # self.show is a QT native method
+        # thus it is inherited. 
         self.show()
 
     def paintEvent(self, event):

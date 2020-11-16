@@ -9,13 +9,17 @@ import cv2
 class MyWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-        root = tk.Tk()
+        root = tk.Tk() # Starts a tkinter object
+        
+        # Have the tkinter root object return the 
+        # desktop window specifications
         screen_width = root.winfo_screenwidth()
         screen_height = root.winfo_screenheight()
-        self.setGeometry(0, 0, screen_width, screen_height)
-        self.setWindowTitle(' ')
-        self.begin = QtCore.QPoint()
-        self.end = QtCore.QPoint()
+        
+        self.setGeometry(0, 0, screen_width, screen_height) # Unclear
+        self.setWindowTitle(' ') # .. 
+        self.begin = QtCore.QPoint() # defines a point in space, obj
+        self.end = QtCore.QPoint() # defines a point in space, obj
         self.setWindowOpacity(0.3)
         QtWidgets.QApplication.setOverrideCursor(
             QtGui.QCursor(QtCore.Qt.CrossCursor)

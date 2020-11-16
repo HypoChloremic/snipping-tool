@@ -1,4 +1,4 @@
-import sys
+import sys, random, re, string
 from os.path import basename
 from PyQt5.QtCore import QPoint, Qt, QRect
 from PyQt5.QtWidgets import QAction, QMainWindow, QApplication, QPushButton, QMenu, QFileDialog
@@ -22,13 +22,15 @@ class Menu(QMainWindow):
         self.lastPoint = QPoint()
         self.total_snips = 0
         self.title = Menu.default_title
-        
+        # Get the main folder
+        self.save_det = self.get_main_folder()
+
         # New snip
-        new_snip_action = QAction('New', self)
+        new_snip_action = QAction('New', self) # TODO: check this
         new_snip_action.setShortcut('Ctrl+N')
         new_snip_action.setStatusTip('Snip!')
         new_snip_action.triggered.connect(self.new_image_window)
-
+        
         # Brush color
         brush_color_button = QPushButton("Brush Color")
         colorMenu = QMenu()
@@ -49,7 +51,7 @@ class Menu(QMainWindow):
         save_action = QAction('Save', self)
         save_action.setShortcut('Ctrl+S')
         save_action.setStatusTip('Save')
-        save_action.triggered.connect(self.save_file)
+        save_action.triggered.connect(self.save_file) # passing the save_file callback
 
         # Exit
         exit_window = QAction('Exit', self)
@@ -64,6 +66,7 @@ class Menu(QMainWindow):
         self.toolbar.addWidget(brush_size_button)
         self.toolbar.addAction(exit_window)
 
+        # Calling the imported SnippingTool class
         self.snippingTool = SnippingTool.SnippingWidget()
         self.setGeometry(*start_position)
 
@@ -84,17 +87,25 @@ class Menu(QMainWindow):
         def change_brush_size(new_size):
             self.brushSize = int(''.join(filter(lambda x: x.isdigit(), new_size)))
 
-    # snippingTool.start() will open a new window, so if this is the first snip, close the first window.
+    def get_main_folder(self) -> dict:
+        main_folder = str(input('[APPLICATION]: FOLDER TO SAVE TO: '))
+        file_prefix = str(input('[APPLICATION]: FILE PREFIX: '))
+        return {'main_folder': main_folder, 'file_prefix': file_prefix}
+
+    # snippingTool.start() will open a new window, so if this is the first snip, 
+    # close the first window.
     def new_image_window(self):
         if self.snippingTool.background:
             self.close()
         self.total_snips += 1
         self.snippingTool.start()
 
-    def save_file(self):
-        file_path, name = QFileDialog.getSaveFileName(self, "Save file", self.title, "PNG Image file (*.png)")
-        if file_path:
-            self.image.save(file_path)
+    def save_file(self): # an important callback
+        # file_path, name = QFileDialog.getSaveFileName(self, "Save file", self.title, "PNG Image file (*.png)")
+        if self.save_det['main_folder']:
+            rn_str = ''.join(random.choice(string.ascii_letters + string.digits) for letter in range(10))
+            self.save_path = f'{self.save_det['main_folder']}/{self.save_det['file_prefix']}_{rn_string}.png'
+            self.image.save(f'') # self.image stores the image we have snipped
             self.change_and_set_title(basename(file_path))
             print(self.title, 'Saved')
 
@@ -134,8 +145,11 @@ class Menu(QMainWindow):
         bytesPerLine = 3 * width
         return QPixmap(QImage(np_img.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped())
 
-
 if __name__ == '__main__':
+    # Contains the command-line arguments passed to the script
+    # passing the sys.arguments or the command line arguments to
+    # the QApplication
     app = QApplication(sys.argv)
+    # 
     mainMenu = Menu()
     sys.exit(app.exec_())
