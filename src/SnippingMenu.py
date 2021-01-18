@@ -7,6 +7,8 @@ from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen
 # from PyQt5.QtWidgets import QFileDialog 
 import SnippingTool
 
+# for clipboard stuff
+import pyperclip
 
 def stdout_log(func):
     '''stdout_log() will print statements
@@ -67,10 +69,13 @@ class Menu(QMainWindow):
         brush_size_button.setMenu(sizeMenu)
         sizeMenu.triggered.connect(lambda action: change_brush_size(action.text()))
 
-        # Save
-        save_action = QAction('Save', self)
+        ### Save
+        save_action = QAction('Save', self) # a QAction object, void method. 
         save_action.setShortcut('Ctrl+S')
         save_action.setStatusTip('Save')
+        # When the action is emitted by the user, 
+        # e.g. when user clicks menu option, or shortcut, or when trigger() is called,
+        # 
         save_action.triggered.connect(self.save_file) # passing the save_file callback
 
         # Exit
@@ -136,8 +141,13 @@ class Menu(QMainWindow):
             self.save_path = f'{self.main_folder}/{self.prefix}_{rn_str}.png'
             self.image.save(self.save_path) # self.image stores the image we have snipped
             self.change_and_set_title(basename(self.save_path))
-            print(self.save_path)
             print(self.title, 'Saved')
+            
+            print(self.save_path)
+            # parsing to clipboard
+            clipb = f'![{rn_str}]({"./" + "/".join(self.save_path.split("/")[-2:])})'
+            print(f'Parsing to clipboard: {clipb}')
+            pyperclip.copy(clipb)
 
     def change_and_set_title(self, new_title):
         self.title = new_title
