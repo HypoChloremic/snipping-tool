@@ -5,6 +5,7 @@ from PIL import ImageGrab
 from PyQt5 import QtWidgets, QtCore, QtGui
 import SnippingMenu
 from PyQt5.QtCore import Qt
+import pyscreenshot
 
 
 class SnippingWidget(QtWidgets.QWidget):
@@ -95,7 +96,8 @@ class SnippingWidget(QtWidgets.QWidget):
         self.repaint()
         QtWidgets.QApplication.processEvents()
         # ImageGrab is seemingly the important part of the application!
-        img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+        # img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+        img = pyscreenshot.grab(bbox=(x1, y1, x2, y2))
         QtWidgets.QApplication.processEvents()
         img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
 

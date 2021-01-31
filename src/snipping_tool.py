@@ -4,7 +4,7 @@ import tkinter as tk
 from PIL import ImageGrab
 import numpy as np
 import cv2
-
+import pyscreenshot
 
 class MyWidget(QtWidgets.QWidget):
     def __init__(self):
@@ -51,7 +51,8 @@ class MyWidget(QtWidgets.QWidget):
         x2 = max(self.begin.x(), self.end.x())
         y2 = max(self.begin.y(), self.end.y())
 
-        img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+        # img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+        img = pyscreenshot.grab(bbox=(x1, y1, x2, y2))
         img.save('capture.png')
         img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
 
