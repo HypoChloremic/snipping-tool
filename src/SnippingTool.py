@@ -22,6 +22,8 @@ class SnippingWidget(QtWidgets.QWidget):
         root = tk.Tk()
         screen_width = root.winfo_screenwidth()
         screen_height = root.winfo_screenheight()
+        print(f"screen width: {screen_width}")
+        print(f"screen height: {screen_height}")
         self.setGeometry(0, 0, screen_width, screen_height)
         self.begin = QtCore.QPoint()
         self.end = QtCore.QPoint()
@@ -77,11 +79,16 @@ class SnippingWidget(QtWidgets.QWidget):
 
     def mousePressEvent(self, event):
         self.begin = event.pos()
+        # Linux
+        self.begin.setX(self.begin.x() + 1920)
         self.end = self.begin
+        print(f"mousePressEvent: {self.begin}, {self.end},  {self.begin.x()}")
         self.update()
 
     def mouseMoveEvent(self, event):
         self.end = event.pos()
+        # linux
+        self.end.setX(self.end.x() + 1920)
         self.update()
 
     def mouseReleaseEvent(self, event):
@@ -97,11 +104,14 @@ class SnippingWidget(QtWidgets.QWidget):
         QtWidgets.QApplication.processEvents()
         # ImageGrab is seemingly the important part of the application!
         # img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
-        img = pyscreenshot.grab(bbox=(x1, y1, x2, y2))
-        QtWidgets.QApplication.processEvents()
-        img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
+        try: 
+            img = pyscreenshot.grab(bbox=(x1, y1, x2, y2))
+            QtWidgets.QApplication.processEvents()
+            img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
 
-        # add to the snips list the object that opens a window of the image
-        print('inside snippingtool, running mainclass update_img')
-        self.mainclass.update_img(img)
+            # add to the snips list the object that opens a window of the image
+            print('inside snippingtool, running mainclass update_img')
+            self.mainclass.update_img(img)
+        except ValueError as e:
+            print(f"Error while click: {e}")
         # SnippingMenu.Menu(img, SnippingWidget.num_snip, (x1, y1, x2, y2))
