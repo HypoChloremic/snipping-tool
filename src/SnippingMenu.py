@@ -145,7 +145,8 @@ class Menu(QMainWindow):
             
             print(self.save_path)
             # parsing to clipboard
-            clipb = f'![{rn_str}]({"./" + "/".join(self.save_path.split("/")[-2:])})'
+            # clipb = f'![{rn_str}]({"./" + "/".join(self.save_path.split("/")[-2:])})'
+            clipb = f'<img src="{"./" + "/".join(self.save_path.split("/")[-2:])}" alt="{rn_str}" style="zoom:50%;" />'
             print(f'Parsing to clipboard: {clipb}')
             pyperclip.copy(clipb)
 
